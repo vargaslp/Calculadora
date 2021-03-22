@@ -2,7 +2,7 @@ class CalcController {
 
     constructor() {
 
-        this._locale = 'pt-BR'//Podemos usar em outros idiomas, basta trocar o valor
+        this._locale = 'pt-BR'
         this._displayCalcEL = document.querySelector("#display")
         this._dateEL = document.querySelector("#data")
         this._timeEL = document.querySelector("#hora")
@@ -12,7 +12,7 @@ class CalcController {
 
     initialize() {
 
-        this.setDisplayDateTime()// colocamos antes também, pois assim não espera o tempo do setInterval para começar a executar
+        this.setDisplayDateTime()
 
         setInterval(() => {
             this.setDisplayDateTime()
