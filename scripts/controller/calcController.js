@@ -54,11 +54,40 @@ class CalcController {
 
     isOperator(value) {
         return (["+", "-", "*", "%", "/"].indexOf(value) > -1)
+
     }
 
- 
+    pushOperation(value) {
+
+        this._operation.push(value)
+
+        if (this._operation.length > 3) {
+
+            this.calc()
+        }
+
+    }
+
+    calc() {
+
+        let last = this._operation.pop()
+
+        let result = eval(this._operation.join(""))
+
+        this._operation = [result, last]
+
+    }
+
+    setLastNumberToDisplay() {
+
+
+
+
+    }
+
+
     addOperation(value) {
-        console.log("é um operador?", this.isOperator(value))
+
 
         if (isNaN(this.getLastOperation())) {
             if (this.isOperator(value)) {
@@ -69,22 +98,27 @@ class CalcController {
 
 
             } else {
-                
-                this._operation.push(value)
+
+                this.pushOperation(value)
+
+                //ATUALIZA DISPLAY
 
             }
 
 
-        } else if (this.isOperator(value)){
-           
-             this._operation.push(value)
-           
-            } else {
-                let newValue = this.getLastOperation().toString() + value.toString()
-                this.setLastOperation(parseInt(newValue))
+        } else if (this.isOperator(value)) {
 
-            }
-        
+            this.pushOperation(value)
+        } else {
+            let newValue = this.getLastOperation().toString() + value.toString()
+            this.setLastOperation(parseInt(newValue))
+
+            this.setLastNumberToDisplay()
+
+            // ATUALIZAR DISPLAY
+
+        }
+
         console.log(this._operation)
     }
 
@@ -92,7 +126,7 @@ class CalcController {
         this.displayCalc = "ERROR"
     }
 
-    addEventListenerAll(element, events, fn) { 
+    addEventListenerAll(element, events, fn) {
 
         events.split(" ").forEach(event => {
 
@@ -112,29 +146,29 @@ class CalcController {
                 break
             case 'soma':
                 this.addOperation('+')
-                
+
                 break
             case 'divisao':
                 this.addOperation('/')
-                
+
                 break
             case 'multiplicacao':
                 this.addOperation('*')
-               
+
                 break
             case 'subtracao':
                 this.addOperation('-')
-               
+
                 break
             case 'porcento':
                 this.addOperation('%')
-               
+
                 break
             case 'igual':
                 break
             case 'ponto':
                 this.addOperation('.')
-                
+
                 break
 
             case '0':
