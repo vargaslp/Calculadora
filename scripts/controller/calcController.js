@@ -2,6 +2,9 @@ class CalcController {
 
     constructor() {
 
+        this._lastOperator = ''
+        this._lastNumber = ''
+
         this._operation = []
         this._locale = 'pt-BR'
         this._displayCalcEL = document.querySelector("#display")
@@ -19,15 +22,21 @@ class CalcController {
         setInterval(() => {
             this.setDisplayDateTime()
         }, 1000)
+
+        this.setLastNumberToDisplay()
     }
 
     clearAll() {
         this._operation = []
+        this._lastNumber = []
+        this._lastOperator = []
+        this.setLastNumberToDisplay()
 
     }
 
     clearEntry() {
         this._operation.pop()
+        this.setLastNumberToDisplay()
 
     }
 
@@ -54,7 +63,6 @@ class CalcController {
 
     isOperator(value) {
         return (["+", "-", "*", "%", "/"].indexOf(value) > -1)
-
     }
 
     pushOperation(value) {
@@ -68,20 +76,84 @@ class CalcController {
 
     }
 
+    getResult() {
+
+        return eval(this._operation.join(""))
+    }
+
     calc() {
 
-        let last = this._operation.pop()
+        let last = ''
 
-        let result = eval(this._operation.join(""))
 
-        this._operation = [result, last]
+        if (this._operation.length < 3) {
+            let firtItem = this._operation[0]
+
+            this._operation = [firtItem, this._lastOperator, this._lastNumber]
+
+
+        }
+        if (this._operation.length > 3) {
+            last = this._operation.pop()
+
+            this._lastOperator = this.getLastItem()
+            this._lastNumber = this.getResult()
+        } else if (this._operation.length == 3) {
+
+            this._lastOperator = this.getLastItem()
+            this._lastNumber = this.getLastItem(false)
+
+
+        }
+
+        let result = this.getResult()
+
+
+        if (last == '%') {
+
+            result = result / 100
+            this._operation = [result]
+
+        } else {
+
+            this._operation = [result]
+            if (last) this._operation.push(last)
+
+        }
+        this.setLastNumberToDisplay()
 
     }
 
+    getLastItem(isOperator = true) {
+
+        let lastIntem
+
+        for (let i = this._operation.length - 1; i >= 0; i--) {
+
+           
+
+            if (this.isOperator(this._operation[i]) == isOperator) {
+                lastIntem = this._operation[i]
+                break
+            }
+         
+        }
+
+        if (!lastIntem) {
+            lastIntem = (isOperator) ? this._lastOperator : this._lastNumber
+        }
+
+        return lastIntem
+    }
+
+
     setLastNumberToDisplay() {
 
+        let lastNumber = this.getLastItem(false)
 
+        if (!lastNumber) lastNumber = 0
 
+        this.displayCalc = lastNumber
 
     }
 
@@ -93,29 +165,25 @@ class CalcController {
             if (this.isOperator(value)) {
                 this.setLastOperation(value)
 
-            } else if (isNaN(value)) {
-                console.log("teste")
-
-
             } else {
 
                 this.pushOperation(value)
+                this.setLastNumberToDisplay()
 
-                //ATUALIZA DISPLAY
 
             }
 
 
         } else if (this.isOperator(value)) {
-
-            this.pushOperation(value)
+           
+            this.pushOperation(value
         } else {
             let newValue = this.getLastOperation().toString() + value.toString()
-            this.setLastOperation(parseInt(newValue))
+            this.setLastOperation(newValue)
 
             this.setLastNumberToDisplay()
 
-            // ATUALIZAR DISPLAY
+           
 
         }
 
@@ -126,7 +194,25 @@ class CalcController {
         this.displayCalc = "ERROR"
     }
 
-    addEventListenerAll(element, events, fn) {
+    addDot(){
+
+        let lastOperation = this.getLastOperation()
+
+        if(typeof lastOperation === 'string' && lastOperation.split('').indexOf('.') > -1) return 
+
+        if(this.isOperator(lastOperation) || !lastOperation){
+            this.pushOperation('0.')
+        }else {
+            this.setLastOperation(lastOperation.toString()+ '.')
+        }
+
+        this.setLastNumberToDisplay()
+
+
+    }
+
+
+    addEventListenerAll(element, events, fn) { 
 
         events.split(" ").forEach(event => {
 
@@ -165,9 +251,10 @@ class CalcController {
 
                 break
             case 'igual':
+                this.calc()
                 break
             case 'ponto':
-                this.addOperation('.')
+                this.addDot('.')
 
                 break
 
@@ -194,7 +281,7 @@ class CalcController {
 
     iniButtonsEvents() {
 
-        let buttons = document.querySelectorAll("#buttons > g, #parts > g")
+        let buttons = document.querySelectorAll("#buttons > g, #parts > g")/
 
         buttons.forEach((btn, index) => {
             this.addEventListenerAll(btn, "click drag", e => {
